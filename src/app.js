@@ -4,6 +4,7 @@ const app = express();
 
 const jwt = require("jsonwebtoken");
 const pool = require("./config/db");
+const bcrypt = require("bcrypt")
 const auth = require("./auth/auth");
 const validPost = require("./valid/post");
 const validUser = require("./valid/user");
@@ -58,12 +59,15 @@ app.get("/posts", async (req, res) => {
 app.post("/user", validUser, async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10)
+
     const sendData = await pool.query(
       `
             INSERT INTO tb_user(name, email, password)
             VALUES($1, $2, $3) RETURNING *
         `,
-      [name, email, password],
+      [name, email, passwordHash],
     );
 
     res.status(201).json({
@@ -105,7 +109,10 @@ app.post("/login", async (req, res) => {
     if (user.rows.length === 0) {
       return res.status(400).json({ message: "usuario não encontrado" });
     }
-    if (password != user.rows[0].password) {
+    
+    const validPassword = await bcrypt.compare(password, user.rows[0].password)
+
+    if (!validPassword) {
       return res.status(400).json({ message: "Senha Invalida" });
     }
 
