@@ -4,11 +4,14 @@ const app = express();
 
 const jwt = require("jsonwebtoken");
 const pool = require("./config/db");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const cors = require("cors");
+
 const auth = require("./auth/auth");
 const validPost = require("./valid/post");
 const validUser = require("./valid/user");
 app.use(express.json());
+app.use(cors())
 
 const formattedDataLocal = (data) => {
   const date = new Date(data).toLocaleString("pt-BR", {
@@ -60,7 +63,7 @@ app.post("/user", validUser, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const sendData = await pool.query(
       `
@@ -109,8 +112,8 @@ app.post("/login", async (req, res) => {
     if (user.rows.length === 0) {
       return res.status(400).json({ message: "usuario não encontrado" });
     }
-    
-    const validPassword = await bcrypt.compare(password, user.rows[0].password)
+
+    const validPassword = await bcrypt.compare(password, user.rows[0].password);
 
     if (!validPassword) {
       return res.status(400).json({ message: "Senha Invalida" });
@@ -148,7 +151,7 @@ app.put("/post/:id", auth, validPost, async (req, res) => {
       [title, content, id],
     );
 
-    console.log(updatedValue.rows)
+    console.log(updatedValue.rows);
 
     res.json({
       mensagem: "Post atualizado com sucesso",
