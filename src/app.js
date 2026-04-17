@@ -11,7 +11,7 @@ const auth = require("./auth/auth");
 const validPost = require("./valid/post");
 const validUser = require("./valid/user");
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 
 const formattedDataLocal = (data) => {
   const date = new Date(data).toLocaleString("pt-BR", {
@@ -49,11 +49,10 @@ app.get("/posts", async (req, res) => {
                 tb_post.title AS titulo,
                 tb_post.content AS conteudo,
                 tb_post.created_by
-            FROM tb_post JOIN tb_user
+            FROM tb_post INNER JOIN tb_user
             ON tb_post.user_id = tb_user.id
             ORDER BY tb_post.created_by
         `);
-
     res.json(resFormatted(getData.rows));
   } catch (err) {
     res.status(500).json({ erro: "FALHA AO FAZER A REQUISIÇÃO" });
