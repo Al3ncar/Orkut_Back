@@ -33,31 +33,35 @@ app.get("/", (req, res) => {
 app.get("/user", async (req, res) => {
   try {
     const getUserData = await pool.query(`
-            SELECT * FROM tb_user
+            SELECT name, email, created_by FROM tb_user
         `);
-    res.status(201).json(resFormatted(getUserData.rows));
+    res.status(200).json(resFormatted(getUserData.rows));
   } catch (err) {
+    console.log(err)
     res.status(500).json({ err: "Não foi possivel carregar as informações" });
   }
 });
 app.get("/posts", async (req, res) => {
   try {
     const getData = await pool.query(`
-            SELECT
-                tb_post.id,
-                tb_user.name AS nome,
-                tb_post.title AS titulo,
-                tb_post.content AS conteudo,
-                tb_post.created_by
-            FROM tb_post INNER JOIN tb_user
-            ON tb_post.user_id = tb_user.id
-            ORDER BY tb_post.created_by
-        `);
+      SELECT
+        tb_post.id,
+        tb_user.name AS nome,
+        tb_post.title AS titulo,
+        tb_post.content AS conteudo,
+        tb_post.created_by
+      FROM tb_post INNER JOIN tb_user
+      ON tb_post.user_id = tb_user.id
+      ORDER BY tb_post.created_by
+    `);
+    console.log(getData.rows);
     res.json(resFormatted(getData.rows));
   } catch (err) {
+    console.log(err)
     res.status(500).json({ erro: "FALHA AO FAZER A REQUISIÇÃO" });
   }
 });
+
 app.post("/user", validUser, async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -157,6 +161,7 @@ app.put("/post/:id", auth, validPost, async (req, res) => {
       data: resFormatted(updatedValue.rows),
     });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ err: "Não foi possivel atualizar as informações" });
   }
 });
@@ -181,6 +186,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
       data: resFormatted(deleteData.rows[0]),
     });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ err: "Não foi possivel deletar as informações" });
   }
 });
@@ -196,6 +202,7 @@ app.delete("/user/:id", auth, async (req, res) => {
       data: resFormatted(deleteData.rows[0]),
     });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ err: "Não foi possivel deletar as informações" });
   }
 });
