@@ -238,8 +238,8 @@ app.delete("/user/:id", auth, async (req, res) => {
       data: resFormatted(deleteData.rows),
     });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ err: "Não foi possivel deletar as informaçõessss", console: console.log(err) });
+    console.log(err.toString());
+    res.status(500).json({ err: "Não foi possivel deletar as informaçõessss", console: err });
   }
 });
 module.exports = app;
