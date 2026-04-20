@@ -62,6 +62,22 @@ app.get("/posts", async (req, res) => {
   }
 });
 
+app.get("/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await pool.query(`SELECT * FROM tb_user WHERE id=$1`, [id]);
+
+    res.json({
+      mensagem: "Post atualizado com sucesso",
+      data: post.rows,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err: "Não foi possivel atualizar as informações" });
+  }
+});
+
 app.post("/user", validUser, async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -199,12 +215,12 @@ app.delete("/user/:id", auth, async (req, res) => {
     const { id } = req.params;
 
     const post = await pool.query(`SELECT * FROM tb_user WHERE id=$1`, [id]);
-
+    
     if (post.rows.length === 0) {
       return res.status(404).json({ msg: "Post não encontrado" });
     }
 
-    if (post.rows[0].user_id !== req.user.id) {
+    if (post.rows[0].id !== req.user.id) {
       return res.status(403).json({ msg: "Sem permissão" });
     }
 
