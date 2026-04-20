@@ -61,23 +61,6 @@ app.get("/posts", async (req, res) => {
     res.status(500).json({ erro: "FALHA AO FAZER A REQUISIÇÃO" });
   }
 });
-
-app.get("/user/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const post = await pool.query(`SELECT * FROM tb_user WHERE id=$1`, [id]);
-
-    res.json({
-      mensagem: "Post atualizado com sucesso",
-      data: post.rows,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err: "Não foi possivel atualizar as informações" });
-  }
-});
-
 app.post("/user", validUser, async (req, res) => {
   try {
     const { name, email, password } = req.body;
