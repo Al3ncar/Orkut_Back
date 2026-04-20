@@ -37,7 +37,7 @@ app.get("/user", async (req, res) => {
         `);
     res.status(200).json(resFormatted(getUserData.rows));
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ err: "Não foi possivel carregar as informações" });
   }
 });
@@ -57,7 +57,7 @@ app.get("/posts", async (req, res) => {
     console.log(getData.rows);
     res.json(resFormatted(getData.rows));
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ erro: "FALHA AO FAZER A REQUISIÇÃO" });
   }
 });
@@ -161,50 +161,61 @@ app.put("/post/:id", auth, validPost, async (req, res) => {
       data: resFormatted(updatedValue.rows),
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ err: "Não foi possivel atualizar as informações" });
   }
 });
 app.delete("/posts/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
+
     const post = await pool.query(`SELECT * FROM tb_post WHERE id=$1`, [id]);
 
     if (post.rows.length === 0) {
-      return res.status(404).json({ mgs: "Post não encontrado" });
+      return res.status(404).json({ msg: "Post não encontrado" });
     }
 
-    if (post.user_id === req.user.id) {
+    if (post.rows[0].user_id !== req.user.id) {
       return res.status(403).json({ msg: "Sem permissão" });
     }
+
     const deleteData = await pool.query(
       `DELETE FROM tb_post WHERE id=$1 RETURNING *`,
       [id],
     );
+
     res.json({
       msg: "Item excluido com sucesso",
-      data: resFormatted(deleteData.rows[0]),
+      data: resFormatted(deleteData.rows),
     });
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ err: "Não foi possivel deletar as informações" });
-  }
-});
-app.delete("/user/:id", auth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleteData = await pool.query(
-      `DELETE FROM tb_user WHERE id=$1 RETURNING *`,
-      [id],
-    );
-    res.json({
-      msg: "Item excluido com sucesso",
-      data: resFormatted(deleteData.rows[0]),
-    });
-  } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ err: "Não foi possivel deletar as informações" });
   }
 });
 
+app.delete("/user/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.id !== id) {
+      return res.status(403).json({ msg: "Sem permissão" });
+    }
+    const deleteData = await pool.query(
+      `DELETE FROM tb_user WHERE id=$1 RETURNING *`,
+      [id],
+    );
+
+    if (deleteData.rows.length === 0) {
+      return res.status(404).json({ msg: "Usuário não encontrado" });
+    }
+
+    res.json({
+      msg: "Item excluido com sucesso",
+      data: resFormatted(deleteData.rows),
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err: "Não foi possivel deletar as informações" });
+  }
+});
 module.exports = app;
