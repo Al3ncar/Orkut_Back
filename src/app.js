@@ -197,9 +197,17 @@ app.delete("/posts/:id", auth, async (req, res) => {
 app.delete("/user/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
-    if (req.user.id !== id) {
+
+    const post = await pool.query(`SELECT * FROM tb_user WHERE id=$1`, [id]);
+
+    if (post.rows.length === 0) {
+      return res.status(404).json({ msg: "Post não encontrado" });
+    }
+
+    if (post.rows[0].user_id !== req.user.id) {
       return res.status(403).json({ msg: "Sem permissão" });
     }
+
     const deleteData = await pool.query(
       `DELETE FROM tb_user WHERE id=$1 RETURNING *`,
       [id],
