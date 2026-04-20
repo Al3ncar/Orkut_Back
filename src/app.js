@@ -213,17 +213,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
 app.delete("/user/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
-
-    const post = await pool.query(`SELECT * FROM tb_user WHERE id=$1`, [id]);
     
-    if (post.rows.length === 0) {
-      return res.status(404).json({ msg: "Post não encontrado" });
-    }
-
-    if (post.rows[0].id !== req.user.id) {
-      return res.status(403).json({ msg: "Sem permissão" });
-    }
-
     const deleteData = await pool.query(
       `DELETE FROM tb_user WHERE id=$1 RETURNING *`,
       [id],
@@ -239,7 +229,7 @@ app.delete("/user/:id", auth, async (req, res) => {
     });
   } catch (err) {
     console.log(err.toString());
-    res.status(500).json({ err: "Não foi possivel deletar as informaçõessss", console: err });
+    res.status(500).json({ err: "Não foi possivel deletar as informaçõessss", console: err, });
   }
 });
 module.exports = app;
