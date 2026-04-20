@@ -206,7 +206,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ err: "Não foi possivel deletar as informações" });
+    res.status(500).json({ err: "NÃO FOI POSSIVEL DELETAR AS INFORMAÇÕES" });
   }
 });
 
